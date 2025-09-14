@@ -63,15 +63,24 @@ class GannSquareGUI:
         self.display_gann_square()
 
     def generate_gann_square_data(self, rotations: int, start_num: int, is_clockwise: bool):
-        # ... (This function remains unchanged as it is now correct) ...
         if rotations < 1: return None
         dim = 2 * rotations + 1
         grid = [[0] * dim for _ in range(dim)]
         x, y = rotations, rotations
+        
         grid[y][x] = start_num
         current_val = start_num + 1
-        if is_clockwise: path = [(-1, 0), (0, -1), (1, 0), (0, 1)] 
-        else: path = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+
+        if is_clockwise:
+            # CORRECT: This path starts Left, then Up, ensuring 2 is left of 1 and 3 is above 2.
+            # Path: Left -> Up -> Right -> Down
+            path = [(-1, 0), (0, -1), (1, 0), (0, 1)] 
+        else: # Counter-Clockwise
+            # NEW CORRECTED PATH:
+            # Starts Right (so 2 is right of 1), then Up (so 3 is above 2).
+            # Path: Right -> Up -> Left -> Down
+            path = [(1, 0), (0, -1), (-1, 0), (0, 1)]
+            
         steps_in_leg, turn_count, direction_idx = 1, 0, 0
         while current_val <= start_num + (dim**2 - 1):
             for _ in range(steps_in_leg):
@@ -80,9 +89,12 @@ class GannSquareGUI:
                 x, y = x + dx, y + dy
                 grid[y][x] = current_val
                 current_val += 1
+            
             direction_idx = (direction_idx + 1) % 4
             turn_count += 1
-            if turn_count % 2 == 0: steps_in_leg += 1
+            if turn_count % 2 == 0:
+                steps_in_leg += 1
+                
         return grid
 
     def handle_highlight_click(self):
